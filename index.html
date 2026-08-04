@@ -1,0 +1,819 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#eef0e5;
+    --paper-deep:#e4e7d9;
+    --card:#f8f7ef;
+    --line:#c7cbb4;
+    --ink:#233142;
+    --ink-soft:#5b6b78;
+    --stamp:#b9822c;
+    --stamp-dark:#7d5717;
+    --brick:#8a4a3a;
+    --sage:#65775b;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  .app{
+    background:var(--paper);
+    background-image:
+      repeating-linear-gradient(180deg, rgba(101,119,91,0.05) 0px, rgba(101,119,91,0.05) 1px, transparent 1px, transparent 34px);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    padding:28px 20px 60px;
+    min-height:100vh;
+  }
+  .sheet{
+    max-width:880px;
+    margin:0 auto;
+  }
+
+  /* ---- Masthead ---- */
+  .masthead{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:22px;
+    gap:16px;
+  }
+  .masthead h1{
+    font-family:'Zilla Slab', serif;
+    font-weight:700;
+    font-size:clamp(26px, 4vw, 38px);
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  .masthead p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    letter-spacing:0.3px;
+  }
+  .stamp{
+    flex-shrink:0;
+    width:104px;
+    height:104px;
+    border:3px solid var(--stamp);
+    border-radius:50%;
+    color:var(--stamp-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    transform:rotate(-9deg);
+    font-family:'IBM Plex Mono', monospace;
+    line-height:1.25;
+    padding:6px;
+    mix-blend-mode:multiply;
+  }
+  .stamp b{
+    display:block;
+    font-size:11px;
+    letter-spacing:1.5px;
+  }
+  .stamp span{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-top:3px;
+  }
+
+  /* ---- Cards ---- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    box-shadow:0 1px 0 rgba(35,49,66,0.04);
+  }
+  .card h2{
+    font-family:'Zilla Slab', serif;
+    font-size:16px;
+    margin:0 0 14px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--sage);
+    border-bottom:1px dashed var(--line);
+    padding-bottom:8px;
+  }
+
+  .form-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:end;
+  }
+  .form-grid .ff{flex:1 1 150px; min-width:150px;}
+  .form-grid .ff[data-field="grupo"]{flex:1 1 220px;}
+  .form-grid .ff[data-field="obs"]{flex:1 1 220px;}
+  .form-grid .ff[data-field="submit"]{flex:0 0 auto; min-width:auto;}
+  .form-grid .ff.is-hidden{display:none;}
+  label{
+    display:block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    font-weight:600;
+  }
+  input, select{
+    width:100%;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input:focus, select:focus{
+    outline:2px solid var(--sage);
+    outline-offset:1px;
+  }
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    letter-spacing:0.3px;
+    border:none;
+    border-radius:2px;
+    padding:10px 16px;
+    cursor:pointer;
+    transition:opacity .15s ease;
+  }
+  .btn:hover{opacity:0.88;}
+  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+  .btn-primary{background:var(--ink); color:var(--paper);}
+  .btn-stamp{background:var(--stamp); color:#fff;}
+  .btn-ghost{background:transparent; color:var(--brick); border:1px solid var(--brick); padding:6px 10px; font-size:12px;}
+
+  .toolbar{
+    display:flex;
+    align-items:flex-end;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .toolbar .field{min-width:170px;}
+  .toolbar .spacer{flex:1;}
+  .count-pill{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+
+  /* ---- Table ---- */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+  }
+  thead th{
+    text-align:left;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color:var(--ink-soft);
+    border-bottom:2px solid var(--ink);
+    padding:6px 8px;
+  }
+  tbody td{
+    padding:8px 8px;
+    border-bottom:1px dotted var(--line);
+    vertical-align:top;
+  }
+  tbody tr:hover{background:rgba(101,119,91,0.06);}
+  .tipo-tag{
+    display:inline-block;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+    border:1px solid currentColor;
+  }
+  .tipo-Brinquedoteca{color:#8a4a3a;}
+  .tipo-Jornal{color:#3a5b8a;}
+  .tipo-Praça\ do\ Saber{color:#65775b;}
+  .tipo-Hora\ do\ Conto{color:#b9822c;}
+  .tipo-Empréstimo{color:#5b4a8a;}
+
+  .report-title{
+    font-family:'Zilla Slab', serif;
+    font-size:18px;
+    text-transform:capitalize;
+    color:var(--ink);
+    margin:2px 0 14px;
+  }
+  tfoot td{
+    border-top:2px solid var(--ink);
+    border-bottom:none;
+    font-weight:600;
+    padding:8px;
+  }
+  tfoot tr td:first-child{font-family:'IBM Plex Sans', sans-serif; text-transform:uppercase; font-size:11px; letter-spacing:0.5px; color:var(--ink-soft);}
+
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    padding:26px 10px;
+    font-size:13px;
+    font-style:italic;
+  }
+
+  /* ---- Summary ---- */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:10px;
+  }
+  @media (max-width:700px){ .summary-grid{grid-template-columns:repeat(2,1fr);} }
+  .summary-item{
+    border:1px solid var(--line);
+    border-left:4px solid var(--sage);
+    padding:10px 12px;
+    background:#fff;
+  }
+  .summary-item .n{
+    font-family:'Zilla Slab', serif;
+    font-size:24px;
+    font-weight:700;
+    display:block;
+  }
+  .summary-item .l{
+    font-size:11px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+  .summary-total{
+    margin-top:12px;
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .summary-total b{color:var(--ink); font-size:16px;}
+
+  .status-msg{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--sage);
+    min-height:16px;
+  }
+
+  /* ---- Print ---- */
+  @media print{
+    body,.app{background:#fff; padding:0;}
+    .no-print{display:none !important;}
+    .card{box-shadow:none; border:1px solid #999; break-inside:avoid;}
+    .sheet{max-width:100%;}
+    .stamp{mix-blend-mode:normal;}
+    tbody tr{break-inside:avoid;}
+  }
+</style>
+
+<div class="app">
+  <div class="sheet">
+
+    <div class="masthead">
+      <div>
+        <h1>Controle de Visitantes</h1>
+        <p>Ficha de registro de atividades &middot; biblioteca</p>
+      </div>
+      <div class="stamp" id="stampBox">
+        <div><b>REGISTRADO</b><span id="stampDate">--/--/----</span></div>
+      </div>
+    </div>
+
+    <div class="card no-print" id="cloudCard">
+      <h2>Conexão com Google Sheets</h2>
+      <div class="toolbar">
+        <div class="field" style="flex:1 1 340px;">
+          <label for="f-sheetUrl">Link do Web App (Google Apps Script)</label>
+          <input type="text" id="f-sheetUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+        <button class="btn btn-primary" id="btnConnect">Conectar</button>
+        <button class="btn btn-ghost" id="btnSync" style="border-color:var(--sage); color:var(--sage);">Sincronizar agora</button>
+      </div>
+      <div class="status-msg" id="cloudStatus">Não conectado — os registros ficam salvos só neste dispositivo. Cole o link do Web App acima para sincronizar com o Google Sheets.</div>
+    </div>
+
+    <div class="card no-print">
+      <h2>Novo registro</h2>
+      <div class="form-grid" id="formGrid">
+        <div class="ff" data-field="tipo">
+          <label for="f-tipo">Tipo de visita</label>
+          <select id="f-tipo">
+            <option>Brinquedoteca</option>
+            <option>Jornal</option>
+            <option>Praça do Saber</option>
+            <option>Hora do Conto</option>
+            <option>Empréstimo</option>
+          </select>
+        </div>
+        <div class="ff" data-field="data">
+          <label for="f-data" id="lbl-data">Data</label>
+          <input type="date" id="f-data">
+        </div>
+        <div class="ff" data-field="dataDevolucao">
+          <label for="f-dataDevolucao">Data de devolução</label>
+          <input type="date" id="f-dataDevolucao">
+        </div>
+        <div class="ff" data-field="hora">
+          <label for="f-hora">Horário</label>
+          <input type="time" id="f-hora">
+        </div>
+        <div class="ff" data-field="grupo">
+          <label for="f-grupo">Visitante / turma / responsável</label>
+          <input type="text" id="f-grupo" placeholder="Ex.: Turma 3ºB, Maria Silva...">
+        </div>
+        <div class="ff" data-field="quantidade">
+          <label for="f-qtd" id="lbl-qtd">Quantidade de pessoas</label>
+          <input type="number" id="f-qtd" min="1" value="1">
+        </div>
+        <div class="ff" data-field="obs">
+          <label for="f-obs">Observações</label>
+          <input type="text" id="f-obs" placeholder="Opcional">
+        </div>
+        <div class="ff" data-field="submit">
+          <button class="btn btn-primary" id="btnAdd">Registrar</button>
+        </div>
+      </div>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <div class="card no-print">
+      <h2>Gerenciar registros</h2>
+      <div class="toolbar">
+        <div class="field">
+          <label for="f-filtro-data">Mostrar registros de</label>
+          <input type="date" id="f-filtro-data">
+        </div>
+        <div class="field">
+          <label for="f-filtro-tipo">Tipo de visita</label>
+          <select id="f-filtro-tipo">
+            <option value="">Todos os tipos</option>
+            <option>Brinquedoteca</option>
+            <option>Jornal</option>
+            <option>Praça do Saber</option>
+            <option>Hora do Conto</option>
+            <option>Empréstimo</option>
+          </select>
+        </div>
+        <button class="btn btn-ghost" id="btnClearFilter" style="border-color:var(--ink-soft); color:var(--ink-soft);">Ver todos</button>
+        <div class="spacer"></div>
+        <span class="count-pill" id="countPill"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Tipo</th>
+            <th>Visitante / turma</th>
+            <th>Qtd.</th>
+            <th>Devolução</th>
+            <th>Hora</th>
+            <th>Observações</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyMsg" style="display:none;">Nenhum registro encontrado ainda. Use o formulário acima para começar.</div>
+    </div>
+
+    <div class="card" id="reportCard">
+      <h2 class="no-print">Relatório mensal para impressão</h2>
+      <div class="toolbar no-print">
+        <div class="field">
+          <label for="f-reportMonth">Mês do relatório</label>
+          <input type="month" id="f-reportMonth">
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-stamp" id="btnPrint">Imprimir relatório</button>
+      </div>
+
+      <h3 id="reportTitle" class="report-title"></h3>
+      <table>
+        <thead>
+          <tr id="reportHeadRow"></tr>
+        </thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot id="reportFoot"></tfoot>
+      </table>
+      <div class="empty" id="reportEmpty" style="display:none;">Nenhuma visita registrada neste mês.</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'biblioteca-visitantes-entries';
+  const SHEET_URL_KEY = 'biblioteca-sheet-url';
+  const TIPOS = ['Brinquedoteca','Jornal','Praça do Saber','Hora do Conto','Empréstimo'];
+  let entries = [];
+  let sheetUrl = '';
+  let filterDate = '';
+  let filterTipo = '';
+
+  // Quais campos aparecem no formulário para cada tipo de visita.
+  const FIELDS_BY_TIPO = {
+    'Empréstimo':       ['data','dataDevolucao','quantidade'],
+    'Jornal':           ['data','quantidade'],
+    'Brinquedoteca':    ['data','quantidade','grupo'],
+    'Praça do Saber':   ['data','hora','grupo','quantidade','obs'],
+    'Hora do Conto':    ['data','hora','grupo','quantidade','obs']
+  };
+  // Rótulo do campo "Data" por tipo.
+  const DATA_LABEL_BY_TIPO = {
+    'Empréstimo': 'Data de retirada'
+  };
+  // Rótulo do campo "Quantidade" por tipo.
+  const QTD_LABEL_BY_TIPO = {
+    'Empréstimo': 'Quantidade de livros'
+  };
+  // Unidade usada no resumo (para diferenciar livros de pessoas).
+  const QTD_UNIT_BY_TIPO = {
+    'Empréstimo': 'livros',
+    'Jornal': 'pessoas',
+    'Brinquedoteca': 'pessoas',
+    'Praça do Saber': 'pessoas',
+    'Hora do Conto': 'pessoas'
+  };
+  const DIAS_EMPRESTIMO = 14;
+
+  const $ = (id) => document.getElementById(id);
+
+  function todayStr(){
+    const d = new Date();
+    return d.toISOString().slice(0,10);
+  }
+  function nowTime(){
+    const d = new Date();
+    return d.toTimeString().slice(0,5);
+  }
+  function fmtDate(iso){
+    if(!iso) return '';
+    const [y,m,d] = iso.split('-');
+    return d+'/'+m+'/'+y;
+  }
+  function addDays(iso, days){
+    if(!iso) return '';
+    const [y,m,d] = iso.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    dt.setDate(dt.getDate() + days);
+    const yy = dt.getFullYear();
+    const mm = String(dt.getMonth()+1).padStart(2,'0');
+    const dd = String(dt.getDate()).padStart(2,'0');
+    return yy+'-'+mm+'-'+dd;
+  }
+
+  function updateFormFields(){
+    const tipo = $('f-tipo').value;
+    const visible = FIELDS_BY_TIPO[tipo] || [];
+    document.querySelectorAll('#formGrid .ff').forEach(el => {
+      const field = el.getAttribute('data-field');
+      if(field === 'tipo' || field === 'submit'){
+        el.classList.remove('is-hidden');
+        return;
+      }
+      el.classList.toggle('is-hidden', !visible.includes(field));
+    });
+    $('lbl-data').textContent = DATA_LABEL_BY_TIPO[tipo] || 'Data';
+    $('lbl-qtd').textContent = QTD_LABEL_BY_TIPO[tipo] || 'Quantidade de pessoas';
+
+    if(tipo === 'Empréstimo' && $('f-data').value){
+      $('f-dataDevolucao').value = addDays($('f-data').value, DIAS_EMPRESTIMO);
+    }
+  }
+  function normalizeDate(v){
+    if(!v) return '';
+    const s = String(v);
+    return s.includes('T') ? s.slice(0,10) : s;
+  }
+  function escapeHtml(str){
+    return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function loadSheetUrl(){
+    try{
+      const res = await window.storage.get(SHEET_URL_KEY, false);
+      sheetUrl = res && res.value ? res.value : '';
+    }catch(e){
+      sheetUrl = '';
+    }
+    $('f-sheetUrl').value = sheetUrl;
+    updateCloudStatus();
+  }
+
+  function updateCloudStatus(msg, isWarn){
+    const el = $('cloudStatus');
+    if(msg){
+      el.textContent = msg;
+      el.style.color = isWarn ? 'var(--brick)' : 'var(--sage)';
+      return;
+    }
+    if(sheetUrl){
+      el.textContent = 'Conectado ao Google Sheets — os registros são sincronizados automaticamente.';
+      el.style.color = 'var(--sage)';
+    }else{
+      el.textContent = 'Não conectado — os registros ficam salvos só neste dispositivo. Cole o link do Web App acima para sincronizar com o Google Sheets.';
+      el.style.color = 'var(--ink-soft)';
+    }
+  }
+
+  // Envia uma requisição ao Web App do Apps Script.
+  // POST usa text/plain para evitar bloqueio de CORS (preflight) em navegadores.
+  async function sheetRequest(method, payload){
+    if(!sheetUrl) return null;
+    const opts = { method };
+    if(method === 'POST'){
+      opts.headers = { 'Content-Type': 'text/plain;charset=utf-8' };
+      opts.body = JSON.stringify(payload);
+    }
+    const res = await fetch(sheetUrl, opts);
+    const text = await res.text();
+    if(!res.ok){
+      throw new Error('HTTP ' + res.status + ' — verifique se a implantação está acessível a "Qualquer pessoa"');
+    }
+    try{
+      return JSON.parse(text);
+    }catch(e){
+      throw new Error('Resposta inesperada (não é JSON) — provavelmente o link não é o de implantação (/exec) ou falta autorizar o acesso');
+    }
+  }
+
+  async function loadEntries(){
+    // Sempre parte do backup local, caso a planilha esteja indisponível.
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      entries = res && res.value ? JSON.parse(res.value) : [];
+    }catch(e){
+      entries = [];
+    }
+
+    if(sheetUrl){
+      try{
+        const rows = await sheetRequest('GET');
+        entries = (rows || []).map(r => ({
+          id: String(r.id),
+          tipo: r.tipo || '',
+          data: normalizeDate(r.data),
+          dataDevolucao: normalizeDate(r.dataDevolucao),
+          hora: r.hora || '',
+          grupo: r.grupo || '',
+          quantidade: (r.quantidade === undefined || r.quantidade === null || r.quantidade === '') ? '' : r.quantidade,
+          obs: r.obs || ''
+        }));
+        await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false); // atualiza backup local
+        updateCloudStatus();
+      }catch(e){
+        updateCloudStatus('Não foi possível acessar o Google Sheets agora (' + e.message + '). Mostrando a última cópia salva neste dispositivo.', true);
+        console.error('Erro ao buscar dados do Sheets:', e);
+      }
+    }
+    render();
+  }
+
+  async function saveEntries(){
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false);
+    }catch(e){
+      setStatus('Não foi possível salvar o backup local.', true);
+    }
+  }
+
+  function setStatus(msg, isWarn){
+    const el = $('statusMsg');
+    el.textContent = msg || '';
+    el.style.color = isWarn ? 'var(--brick)' : 'var(--sage)';
+    if(msg){ setTimeout(()=>{ if(el.textContent === msg) el.textContent=''; }, 3500); }
+  }
+
+  function getFiltered(){
+    return entries.filter(e => {
+      if(filterDate && e.data !== filterDate) return false;
+      if(filterTipo && e.tipo !== filterTipo) return false;
+      return true;
+    });
+  }
+
+  function tipoClass(tipo){
+    return 'tipo-' + tipo.replace(/ /g, '\\ ');
+  }
+
+  function render(){
+    const list = getFiltered().slice().sort((a,b) => {
+      if(a.data !== b.data) return b.data.localeCompare(a.data);
+      return b.hora.localeCompare(a.hora);
+    });
+
+    const tbody = $('tbody');
+    $('emptyMsg').style.display = list.length ? 'none' : 'block';
+    tbody.innerHTML = list.map(e => `
+      <tr>
+        <td>${fmtDate(e.data)}</td>
+        <td><span class="tipo-tag ${tipoClass(e.tipo)}">${escapeHtml(e.tipo)}</span></td>
+        <td>${escapeHtml(e.grupo) || '&mdash;'}</td>
+        <td>${escapeHtml(e.quantidade)}</td>
+        <td>${e.dataDevolucao ? fmtDate(e.dataDevolucao) : '&mdash;'}</td>
+        <td>${escapeHtml(e.hora) || '&mdash;'}</td>
+        <td>${escapeHtml(e.obs) || '&mdash;'}</td>
+        <td class="no-print"><button class="btn btn-ghost" data-del="${e.id}">remover</button></td>
+      </tr>
+    `).join('');
+
+    tbody.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', () => removeEntry(btn.getAttribute('data-del')));
+    });
+
+    $('countPill').textContent = list.length + ' registro(s) na visão atual';
+
+    renderReport();
+  }
+
+  const REPORT_COLUMNS = ['Empréstimo','Hora do Conto','Jornal','Brinquedoteca','Praça do Saber'];
+  const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+  function monthLabel(month){
+    if(!month) return '';
+    const [y,m] = month.split('-').map(Number);
+    return MESES_PT[m-1] + ' de ' + y;
+  }
+
+  function renderReport(){
+    const month = $('f-reportMonth').value;
+    $('reportTitle').textContent = 'Relatório de visitas \u2014 ' + (monthLabel(month) || '');
+
+    const inMonth = entries.filter(e => e.data && e.data.slice(0,7) === month);
+
+    // Agrupa por dia, somando a quantidade de cada tipo naquele dia.
+    const byDay = {};
+    inMonth.forEach(e => {
+      if(!byDay[e.data]) byDay[e.data] = {};
+      byDay[e.data][e.tipo] = (byDay[e.data][e.tipo] || 0) + (Number(e.quantidade) || 0);
+    });
+    const days = Object.keys(byDay).sort();
+
+    // Cabeçalho
+    $('reportHeadRow').innerHTML = '<th>Data</th>' +
+      REPORT_COLUMNS.map(t => `<th>${escapeHtml(t)}</th>`).join('') +
+      '<th>Total do dia</th>';
+
+    // Linhas por dia
+    const totals = {};
+    REPORT_COLUMNS.forEach(t => totals[t] = 0);
+    let grandTotal = 0;
+
+    $('reportBody').innerHTML = days.map(day => {
+      let rowTotal = 0;
+      const cells = REPORT_COLUMNS.map(t => {
+        const v = (byDay[day][t] || 0);
+        totals[t] += v;
+        rowTotal += v;
+        return `<td>${v}</td>`;
+      }).join('');
+      grandTotal += rowTotal;
+      return `<tr><td>${fmtDate(day)}</td>${cells}<td>${rowTotal}</td></tr>`;
+    }).join('');
+
+    // Rodapé com totais do mês
+    $('reportFoot').innerHTML = `<tr><td>Total do mês</td>${
+      REPORT_COLUMNS.map(t => `<td>${totals[t]}</td>`).join('')
+    }<td>${grandTotal}</td></tr>`;
+
+    $('reportEmpty').style.display = days.length ? 'none' : 'block';
+    document.querySelector('#reportCard table').style.display = days.length ? '' : 'none';
+
+    $('stampDate').textContent = monthLabel(month) || fmtDate(todayStr());
+  }
+
+  function colorForTipo(t){
+    const map = {
+      'Brinquedoteca':'#8a4a3a',
+      'Jornal':'#3a5b8a',
+      'Praça do Saber':'#65775b',
+      'Hora do Conto':'#b9822c',
+      'Empréstimo':'#5b4a8a'
+    };
+    return map[t] || '#65775b';
+  }
+
+  async function addEntry(){
+    const tipo = $('f-tipo').value;
+    const visible = FIELDS_BY_TIPO[tipo] || [];
+
+    const data = visible.includes('data') ? ($('f-data').value || todayStr()) : '';
+    const dataDevolucao = visible.includes('dataDevolucao') ? $('f-dataDevolucao').value : '';
+    const hora = visible.includes('hora') ? $('f-hora').value : '';
+    const grupo = visible.includes('grupo') ? $('f-grupo').value.trim() : '';
+    const quantidade = visible.includes('quantidade') ? ($('f-qtd').value || 1) : '';
+    const obs = visible.includes('obs') ? $('f-obs').value.trim() : '';
+
+    if(tipo === 'Empréstimo' && !data){
+      setStatus('Informe a data de retirada.', true);
+      return;
+    }
+
+    const newEntry = {
+      id: 'v' + Date.now() + Math.random().toString(36).slice(2,7),
+      tipo, data, dataDevolucao, hora, grupo, quantidade, obs
+    };
+    entries.push(newEntry);
+
+    $('f-grupo').value = '';
+    $('f-obs').value = '';
+    $('f-qtd').value = '1';
+    $('f-hora').value = nowTime();
+
+    await saveEntries();
+    render();
+
+    if(sheetUrl){
+      try{
+        await sheetRequest('POST', newEntry);
+        setStatus('Registro adicionado e sincronizado com o Google Sheets.');
+      }catch(e){
+        setStatus('Registro salvo neste dispositivo, mas não sincronizou com o Sheets.', true);
+      }
+    }else{
+      setStatus('Registro adicionado.');
+    }
+  }
+
+  async function removeEntry(id){
+    entries = entries.filter(e => e.id !== id);
+    await saveEntries();
+    render();
+
+    if(sheetUrl){
+      try{
+        await sheetRequest('POST', { action: 'delete', id });
+        setStatus('Registro removido e sincronizado com o Google Sheets.');
+      }catch(e){
+        setStatus('Removido neste dispositivo, mas não sincronizou com o Sheets.', true);
+      }
+    }else{
+      setStatus('Registro removido.');
+    }
+  }
+
+  function initDefaults(){
+    $('f-data').value = todayStr();
+    $('f-hora').value = nowTime();
+    $('f-reportMonth').value = todayStr().slice(0,7);
+    updateFormFields();
+  }
+
+  $('btnAdd').addEventListener('click', addEntry);
+  $('btnPrint').addEventListener('click', () => window.print());
+  $('btnConnect').addEventListener('click', async () => {
+    const url = $('f-sheetUrl').value.trim();
+    if(!url){
+      updateCloudStatus('Cole o link do Web App antes de conectar.', true);
+      return;
+    }
+    sheetUrl = url;
+    try{
+      await window.storage.set(SHEET_URL_KEY, sheetUrl, false);
+    }catch(e){ /* segue mesmo se não conseguir lembrar o link */ }
+    updateCloudStatus('Conectando...');
+    await loadEntries();
+  });
+  $('btnSync').addEventListener('click', async () => {
+    if(!sheetUrl){
+      updateCloudStatus('Conecte um link do Web App primeiro.', true);
+      return;
+    }
+    updateCloudStatus('Sincronizando...');
+    await loadEntries();
+  });
+  $('f-tipo').addEventListener('change', updateFormFields);
+  $('f-reportMonth').addEventListener('change', renderReport);
+  $('f-data').addEventListener('change', () => {
+    if($('f-tipo').value === 'Empréstimo'){
+      $('f-dataDevolucao').value = addDays($('f-data').value, DIAS_EMPRESTIMO);
+    }
+  });
+  $('f-filtro-data').addEventListener('change', (e) => { filterDate = e.target.value; render(); });
+  $('f-filtro-tipo').addEventListener('change', (e) => { filterTipo = e.target.value; render(); });
+  $('btnClearFilter').addEventListener('click', () => {
+    filterDate = ''; filterTipo = '';
+    $('f-filtro-data').value = '';
+    $('f-filtro-tipo').value = '';
+    render();
+  });
+
+  initDefaults();
+  loadSheetUrl().then(loadEntries);
+})();
+</script>
