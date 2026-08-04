@@ -296,19 +296,6 @@
       </div>
     </div>
 
-    <div class="card no-print" id="cloudCard">
-      <h2>Conexão com Google Sheets</h2>
-      <div class="toolbar">
-        <div class="field" style="flex:1 1 340px;">
-          <label for="f-sheetUrl">Link do Web App (Google Apps Script)</label>
-          <input type="text" id="f-sheetUrl" placeholder="https://script.google.com/macros/s/.../exec">
-        </div>
-        <button class="btn btn-primary" id="btnConnect">Conectar</button>
-        <button class="btn btn-ghost" id="btnSync" style="border-color:var(--sage); color:var(--sage);">Sincronizar agora</button>
-      </div>
-      <div class="status-msg" id="cloudStatus">Não conectado — os registros ficam salvos só neste dispositivo. Cole o link do Web App acima para sincronizar com o Google Sheets.</div>
-    </div>
-
     <div class="card no-print">
       <h2>Novo registro</h2>
       <div class="form-grid" id="formGrid">
@@ -519,23 +506,12 @@
     if(!sheetUrl){
       sheetUrl = DEFAULT_SHEET_URL;
     }
-    $('f-sheetUrl').value = sheetUrl;
-    updateCloudStatus();
   }
 
+  // Mantida apenas para reportar erros de sincronização na mensagem de status geral.
   function updateCloudStatus(msg, isWarn){
-    const el = $('cloudStatus');
     if(msg){
-      el.textContent = msg;
-      el.style.color = isWarn ? 'var(--brick)' : 'var(--sage)';
-      return;
-    }
-    if(sheetUrl){
-      el.textContent = 'Conectado ao Google Sheets — os registros são sincronizados automaticamente.';
-      el.style.color = 'var(--sage)';
-    }else{
-      el.textContent = 'Não conectado — os registros ficam salvos só neste dispositivo. Cole o link do Web App acima para sincronizar com o Google Sheets.';
-      el.style.color = 'var(--ink-soft)';
+      setStatus(msg, isWarn);
     }
   }
 
@@ -785,27 +761,6 @@
   $('btnAdd').addEventListener('click', addEntry);
   $('btnPrint').addEventListener('click', () => window.print());
   $('btnPrintTop').addEventListener('click', () => window.print());
-  $('btnConnect').addEventListener('click', async () => {
-    const url = $('f-sheetUrl').value.trim();
-    if(!url){
-      updateCloudStatus('Cole o link do Web App antes de conectar.', true);
-      return;
-    }
-    sheetUrl = url;
-    try{
-      await window.storage.set(SHEET_URL_KEY, sheetUrl, false);
-    }catch(e){ /* segue mesmo se não conseguir lembrar o link */ }
-    updateCloudStatus('Conectando...');
-    await loadEntries();
-  });
-  $('btnSync').addEventListener('click', async () => {
-    if(!sheetUrl){
-      updateCloudStatus('Conecte um link do Web App primeiro.', true);
-      return;
-    }
-    updateCloudStatus('Sincronizando...');
-    await loadEntries();
-  });
   $('f-tipo').addEventListener('change', updateFormFields);
   $('f-reportMonth').addEventListener('change', renderReport);
   $('f-data').addEventListener('change', () => {
