@@ -288,6 +288,9 @@
         <h1>Controle de Visitantes</h1>
         <p>Ficha de registro de atividades &middot; biblioteca</p>
       </div>
+      <div class="no-print" style="display:flex; align-items:center; gap:14px;">
+        <button class="btn btn-stamp" id="btnPrintTop">Imprimir relatório</button>
+      </div>
       <div class="stamp" id="stampBox">
         <div><b>REGISTRADO</b><span id="stampDate">--/--/----</span></div>
       </div>
@@ -419,6 +422,8 @@
 (function(){
   const STORAGE_KEY = 'biblioteca-visitantes-entries';
   const SHEET_URL_KEY = 'biblioteca-sheet-url';
+  // Link fixo do Web App (Google Apps Script) — já configurado, não precisa colar de novo.
+  const DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxwfg5kkKmwBe3feeE1EXx8lXyDN2Loi1vnY9fQUY7EmB7gBhi6j344mgEBiEX_I0BE/exec';
   const TIPOS = ['Brinquedoteca','Jornal','Praça do Saber','Hora do Conto','Empréstimo'];
   let entries = [];
   let sheetUrl = '';
@@ -510,6 +515,9 @@
       sheetUrl = res && res.value ? res.value : '';
     }catch(e){
       sheetUrl = '';
+    }
+    if(!sheetUrl){
+      sheetUrl = DEFAULT_SHEET_URL;
     }
     $('f-sheetUrl').value = sheetUrl;
     updateCloudStatus();
@@ -776,6 +784,7 @@
 
   $('btnAdd').addEventListener('click', addEntry);
   $('btnPrint').addEventListener('click', () => window.print());
+  $('btnPrintTop').addEventListener('click', () => window.print());
   $('btnConnect').addEventListener('click', async () => {
     const url = $('f-sheetUrl').value.trim();
     if(!url){
