@@ -413,6 +413,7 @@
         <tfoot id="reportFoot"></tfoot>
       </table>
       <div class="empty" id="reportEmpty" style="display:none;">Nenhuma visita registrada neste mês.</div>
+      <p id="reportLegend" class="no-print" style="display:none; font-size:12px; color:var(--ink-soft); margin-top:8px;">* Dia com visitante(s) contado(s) em mais de uma atividade — o total do dia não conta essa pessoa duas vezes.</p>
     </div>
 
   </div>
@@ -654,7 +655,12 @@
       btn.addEventListener('click', () => removeEntry(btn.getAttribute('data-del')));
     });
 
-    $('countPill').textContent = list.length + ' registro(s)' + (janelaSemana ? ' — últimos 7 dias' : ' na visão atual');
+    let sufixo = janelaSemana ? ' — últimos 7 dias' : '';
+    const partesFiltro = [];
+    if(filterDate) partesFiltro.push(fmtDate(filterDate));
+    if(filterTipo) partesFiltro.push(filterTipo);
+    if(partesFiltro.length) sufixo = ' — filtrado: ' + partesFiltro.join(', ');
+    $('countPill').textContent = list.length + ' registro(s)' + sufixo;
   }
 
   const REPORT_COLUMNS = ['Empréstimo','Hora do Conto','Jornal','Brinquedoteca','Praça do Saber'];
@@ -678,14 +684,16 @@
     // dia" conta a visita da pessoa só uma vez (não soma de novo por coluna extra).
     const byDay = {};
     inMonth.forEach(e => {
-      if(!byDay[e.data]) byDay[e.data] = { porTipo:{}, totalDia:0 };
+      if(!byDay[e.data]) byDay[e.data] = { porTipo:{}, totalDia:0, compartilhado:false };
       const qtd = Number(e.quantidade) || 0;
       byDay[e.data].porTipo[e.tipo] = (byDay[e.data].porTipo[e.tipo] || 0) + qtd;
       if(e.jaContadoPraca){
         byDay[e.data].porTipo['Praça do Saber'] = (byDay[e.data].porTipo['Praça do Saber'] || 0) + qtd;
+        byDay[e.data].compartilhado = true;
       }
       if(e.jaContadoBrinquedoteca){
         byDay[e.data].porTipo['Brinquedoteca'] = (byDay[e.data].porTipo['Brinquedoteca'] || 0) + qtd;
+        byDay[e.data].compartilhado = true;
       }
       byDay[e.data].totalDia += qtd;
     });
@@ -709,8 +717,12 @@
       }).join('');
       const rowTotal = byDay[day].totalDia;
       grandTotal += rowTotal;
-      return `<tr><td>${fmtDate(day)}</td>${cells}<td>${rowTotal}</td></tr>`;
+      const marca = byDay[day].compartilhado ? ' <span title="Inclui visitante(s) contado(s) em mais de uma atividade no mesmo dia">*</span>' : '';
+      return `<tr><td>${fmtDate(day)}</td>${cells}<td>${rowTotal}${marca}</td></tr>`;
     }).join('');
+
+    const temCompartilhado = days.some(d => byDay[d].compartilhado);
+    $('reportLegend').style.display = temCompartilhado ? 'block' : 'none';
 
     // Rodapé com totais do mês
     $('reportFoot').innerHTML = `<tr><td>Total do mês</td>${
@@ -723,17 +735,6 @@
     $('stampDate').textContent = monthLabel(month) || fmtDate(todayStr());
   }
 
-  function colorForTipo(t){
-    const map = {
-      'Brinquedoteca':'#8a4a3a',
-      'Jornal':'#3a5b8a',
-      'Praça do Saber':'#65775b',
-      'Hora do Conto':'#b9822c',
-      'Empréstimo':'#5b4a8a'
-    };
-    return map[t] || '#65775b';
-  }
-
   async function addEntry(){
     const tipo = $('f-tipo').value;
     const visible = FIELDS_BY_TIPO[tipo] || [];
@@ -742,7 +743,9 @@
     const dataDevolucao = visible.includes('dataDevolucao') ? $('f-dataDevolucao').value : '';
     const hora = visible.includes('hora') ? $('f-hora').value : '';
     const grupo = visible.includes('grupo') ? $('f-grupo').value.trim() : '';
-    const quantidade = visible.includes('quantidade') ? ($('f-qtd').value || 1) : '';
+    // 4. Garante um número inteiro válido e maior ou igual a 1 (evita quantidade vazia/negativa).
+    const qtdRaw = visible.includes('quantidade') ? parseInt($('f-qtd').value, 10) : 1;
+    const quantidade = visible.includes('quantidade') ? (Number.isFinite(qtdRaw) && qtdRaw > 0 ? qtdRaw : 1) : '';
     const obs = visible.includes('obs') ? $('f-obs').value.trim() : '';
     const jaContadoPraca = visible.includes('jaContado') ? ($('f-jaContadoPraca').checked ? '1' : '') : '';
     const jaContadoBrinquedoteca = visible.includes('jaContado') ? ($('f-jaContadoBrinquedoteca').checked ? '1' : '') : '';
@@ -769,19 +772,38 @@
     await saveEntries();
     render();
 
+    // 8. Trava o botão durante o envio para evitar registro duplicado por clique duplo.
+    const btn = $('btnAdd');
+    btn.disabled = true;
+    const textoOriginal = btn.textContent;
+    btn.textContent = 'Salvando...';
+
     if(sheetUrl){
       try{
         await sheetRequest('POST', newEntry);
         setStatus('Registro adicionado e sincronizado com o Google Sheets.');
       }catch(e){
-        setStatus('Registro salvo neste dispositivo, mas não sincronizou com o Sheets.', true);
+        // 3. Deixa claro que o registro NÃO está na nuvem ainda, só neste aparelho.
+        setStatus('Registro salvo apenas neste dispositivo — não sincronizou com o Google Sheets. Verifique a conexão.', true);
       }
     }else{
       setStatus('Registro adicionado.');
     }
+
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
   }
 
   async function removeEntry(id){
+    const alvo = entries.find(e => e.id === id);
+    if(!alvo) return;
+    const confirmMsg = `Remover este registro?\n\n${alvo.tipo} — ${fmtDate(alvo.data)}${alvo.grupo ? ' — ' + alvo.grupo : ''}`;
+    if(!window.confirm(confirmMsg)) return;
+
+    // Guarda para poder desfazer localmente caso a sincronização falhe.
+    const backup = entries.slice();
+    const idxBackup = backup.findIndex(e => e.id === id);
+
     entries = entries.filter(e => e.id !== id);
     await saveEntries();
     render();
@@ -791,7 +813,11 @@
         await sheetRequest('POST', { action: 'delete', id });
         setStatus('Registro removido e sincronizado com o Google Sheets.');
       }catch(e){
-        setStatus('Removido neste dispositivo, mas não sincronizou com o Sheets.', true);
+        // Falhou a sincronização: desfaz a remoção local para não divergir da planilha.
+        entries = backup;
+        await saveEntries();
+        render();
+        setStatus('Não foi possível remover no Google Sheets — a remoção foi desfeita. Tente novamente.', true);
       }
     }else{
       setStatus('Registro removido.');
@@ -811,11 +837,7 @@
   $('btnPrintTop').addEventListener('click', () => window.print());
   $('f-tipo').addEventListener('change', updateFormFields);
   $('f-reportMonth').addEventListener('change', renderReport);
-  $('f-data').addEventListener('change', () => {
-    if($('f-tipo').value === 'Empréstimo'){
-      $('f-dataDevolucao').value = addDays($('f-data').value, DIAS_EMPRESTIMO);
-    }
-  });
+  $('f-data').addEventListener('change', updateFormFields);
   $('f-filtro-data').addEventListener('change', (e) => { filterDate = e.target.value; render(); });
   $('f-filtro-tipo').addEventListener('change', (e) => { filterTipo = e.target.value; render(); });
   $('btnClearFilter').addEventListener('click', () => {
