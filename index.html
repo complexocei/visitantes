@@ -488,6 +488,11 @@
     $('lbl-data').textContent = DATA_LABEL_BY_TIPO[tipo] || 'Data';
     $('lbl-qtd').textContent = QTD_LABEL_BY_TIPO[tipo] || 'Quantidade de pessoas';
 
+    // Evita que o checkbox fique marcado "escondido" ao trocar de tipo e voltar.
+    if(!visible.includes('jaContado')){
+      $('f-jaContado').checked = false;
+    }
+
     if(tipo === 'Empréstimo' && $('f-data').value){
       $('f-dataDevolucao').value = addDays($('f-data').value, DIAS_EMPRESTIMO);
     }
