@@ -111,6 +111,7 @@
   .form-grid .ff{flex:1 1 150px; min-width:150px;}
   .form-grid .ff[data-field="grupo"]{flex:1 1 220px;}
   .form-grid .ff[data-field="obs"]{flex:1 1 220px;}
+  .form-grid .ff[data-field="jaContado"]{flex:1 1 100%;}
   .form-grid .ff[data-field="submit"]{flex:0 0 auto; min-width:auto;}
   .form-grid .ff.is-hidden{display:none;}
   label{
@@ -333,6 +334,10 @@
           <label for="f-obs">Observações</label>
           <input type="text" id="f-obs" placeholder="Opcional">
         </div>
+        <div class="ff" data-field="jaContado" style="display:flex; align-items:center; gap:8px; padding-bottom:9px;">
+          <input type="checkbox" id="f-jaContado" style="width:auto;">
+          <label for="f-jaContado" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Também esteve na Praça do Saber / Brinquedoteca hoje (não contar 2x no total)</label>
+        </div>
         <div class="ff" data-field="submit">
           <button class="btn btn-primary" id="btnAdd">Registrar</button>
         </div>
@@ -423,7 +428,7 @@
     'Jornal':           ['data','quantidade'],
     'Brinquedoteca':    ['data','quantidade','grupo'],
     'Praça do Saber':   ['data','hora','grupo','quantidade','obs'],
-    'Hora do Conto':    ['data','hora','grupo','quantidade','obs']
+    'Hora do Conto':    ['data','hora','grupo','quantidade','obs','jaContado']
   };
   // Rótulo do campo "Data" por tipo.
   const DATA_LABEL_BY_TIPO = {
@@ -556,7 +561,8 @@
           hora: r.hora || '',
           grupo: r.grupo || '',
           quantidade: (r.quantidade === undefined || r.quantidade === null || r.quantidade === '') ? '' : r.quantidade,
-          obs: r.obs || ''
+          obs: r.obs || '',
+          jaContado: r.jaContado || ''
         }));
         await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false); // atualiza backup local
         updateCloudStatus();
@@ -641,10 +647,16 @@
     const inMonth = entries.filter(e => e.data && e.data.slice(0,7) === month);
 
     // Agrupa por dia, somando a quantidade de cada tipo naquele dia.
+    // Entradas marcadas como "jaContado" entram na coluna do seu tipo,
+    // mas não são somadas de novo no total do dia (já vieram de outra atividade).
     const byDay = {};
     inMonth.forEach(e => {
-      if(!byDay[e.data]) byDay[e.data] = {};
-      byDay[e.data][e.tipo] = (byDay[e.data][e.tipo] || 0) + (Number(e.quantidade) || 0);
+      if(!byDay[e.data]) byDay[e.data] = { porTipo:{}, totalDia:0 };
+      const qtd = Number(e.quantidade) || 0;
+      byDay[e.data].porTipo[e.tipo] = (byDay[e.data].porTipo[e.tipo] || 0) + qtd;
+      if(!e.jaContado){
+        byDay[e.data].totalDia += qtd;
+      }
     });
     const days = Object.keys(byDay).sort();
 
@@ -659,13 +671,12 @@
     let grandTotal = 0;
 
     $('reportBody').innerHTML = days.map(day => {
-      let rowTotal = 0;
       const cells = REPORT_COLUMNS.map(t => {
-        const v = (byDay[day][t] || 0);
+        const v = (byDay[day].porTipo[t] || 0);
         totals[t] += v;
-        rowTotal += v;
         return `<td>${v}</td>`;
       }).join('');
+      const rowTotal = byDay[day].totalDia;
       grandTotal += rowTotal;
       return `<tr><td>${fmtDate(day)}</td>${cells}<td>${rowTotal}</td></tr>`;
     }).join('');
@@ -702,6 +713,7 @@
     const grupo = visible.includes('grupo') ? $('f-grupo').value.trim() : '';
     const quantidade = visible.includes('quantidade') ? ($('f-qtd').value || 1) : '';
     const obs = visible.includes('obs') ? $('f-obs').value.trim() : '';
+    const jaContado = visible.includes('jaContado') ? ($('f-jaContado').checked ? '1' : '') : '';
 
     if(tipo === 'Empréstimo' && !data){
       setStatus('Informe a data de retirada.', true);
@@ -710,7 +722,7 @@
 
     const newEntry = {
       id: 'v' + Date.now() + Math.random().toString(36).slice(2,7),
-      tipo, data, dataDevolucao, hora, grupo, quantidade, obs
+      tipo, data, dataDevolucao, hora, grupo, quantidade, obs, jaContado
     };
     entries.push(newEntry);
 
@@ -718,6 +730,7 @@
     $('f-obs').value = '';
     $('f-qtd').value = '1';
     $('f-hora').value = nowTime();
+    $('f-jaContado').checked = false;
 
     await saveEntries();
     render();
