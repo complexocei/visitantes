@@ -349,7 +349,7 @@
       <h2>Gerenciar registros</h2>
       <div class="toolbar">
         <div class="field">
-          <label for="f-filtro-data">Mostrar registros de</label>
+          <label for="f-filtro-data">Mostrar registros de (padrão: últimos 7 dias)</label>
           <input type="date" id="f-filtro-data">
         </div>
         <div class="field">
@@ -421,6 +421,7 @@
   let sheetUrl = '';
   let filterDate = '';
   let filterTipo = '';
+  let showAll = false; // false = lista padrão mostra só últimos 7 dias; true = "Ver todos"
 
   // Quais campos aparecem no formulário para cada tipo de visita.
   const FIELDS_BY_TIPO = {
@@ -472,6 +473,9 @@
     const mm = String(dt.getMonth()+1).padStart(2,'0');
     const dd = String(dt.getDate()).padStart(2,'0');
     return yy+'-'+mm+'-'+dd;
+  }
+  function daysAgoStr(days){
+    return addDays(todayStr(), -days);
   }
 
   function updateFormFields(){
@@ -595,9 +599,13 @@
   }
 
   function getFiltered(){
+    // Sem data específica escolhida e sem "ver todos" ativo: limita aos últimos 7 dias
+    // para a lista não ficar pesada. Escolher uma data ou clicar "Ver todos" libera o filtro.
+    const limiteSemana = (!filterDate && !showAll) ? daysAgoStr(7) : null;
     return entries.filter(e => {
       if(filterDate && e.data !== filterDate) return false;
       if(filterTipo && e.tipo !== filterTipo) return false;
+      if(limiteSemana && e.data < limiteSemana) return false;
       return true;
     });
   }
@@ -613,6 +621,10 @@
     });
 
     const tbody = $('tbody');
+    const janelaSemana = (!filterDate && !showAll);
+    $('emptyMsg').textContent = (janelaSemana && entries.length)
+      ? 'Nenhum registro nos últimos 7 dias. Clique em "Ver todos" para consultar datas anteriores.'
+      : 'Nenhum registro encontrado ainda. Use o formulário acima para começar.';
     $('emptyMsg').style.display = list.length ? 'none' : 'block';
     tbody.innerHTML = list.map(e => `
       <tr>
@@ -631,9 +643,7 @@
       btn.addEventListener('click', () => removeEntry(btn.getAttribute('data-del')));
     });
 
-    $('countPill').textContent = list.length + ' registro(s) na visão atual';
-
-    renderReport();
+    $('countPill').textContent = list.length + ' registro(s)' + (janelaSemana ? ' — últimos 7 dias' : ' na visão atual');
   }
 
   const REPORT_COLUMNS = ['Empréstimo','Hora do Conto','Jornal','Brinquedoteca','Praça do Saber'];
@@ -774,6 +784,7 @@
     $('f-hora').value = nowTime();
     $('f-reportMonth').value = todayStr().slice(0,7);
     updateFormFields();
+    updateClearFilterLabel();
   }
 
   $('btnAdd').addEventListener('click', addEntry);
@@ -789,11 +800,16 @@
   $('f-filtro-data').addEventListener('change', (e) => { filterDate = e.target.value; render(); });
   $('f-filtro-tipo').addEventListener('change', (e) => { filterTipo = e.target.value; render(); });
   $('btnClearFilter').addEventListener('click', () => {
-    filterDate = ''; filterTipo = '';
+    filterDate = ''; filterTipo = ''; showAll = !showAll;
     $('f-filtro-data').value = '';
     $('f-filtro-tipo').value = '';
+    updateClearFilterLabel();
     render();
   });
+
+  function updateClearFilterLabel(){
+    $('btnClearFilter').textContent = showAll ? 'Ver só última semana' : 'Ver todos';
+  }
 
   initDefaults();
   loadSheetUrl().then(loadEntries);
