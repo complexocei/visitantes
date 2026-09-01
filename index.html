@@ -335,9 +335,16 @@
           <label for="f-obs">Observações</label>
           <input type="text" id="f-obs" placeholder="Opcional">
         </div>
-        <div class="ff" data-field="jaContado" style="display:flex; align-items:center; gap:8px; padding-bottom:9px;">
-          <input type="checkbox" id="f-jaContado" style="width:auto;">
-          <label for="f-jaContado" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Também esteve na Praça do Saber / Brinquedoteca hoje (não contar 2x no total)</label>
+        <div class="ff" data-field="jaContado" style="display:flex; flex-direction:column; gap:6px; padding-bottom:9px;">
+          <label style="margin:0;">Também esteve em (não contar 2x no total)</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="f-jaContadoPraca" style="width:auto;">
+            <label for="f-jaContadoPraca" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Praça do Saber</label>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="f-jaContadoBrinquedoteca" style="width:auto;">
+            <label for="f-jaContadoBrinquedoteca" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Brinquedoteca</label>
+          </div>
         </div>
         <div class="ff" data-field="submit">
           <button class="btn btn-primary" id="btnAdd">Registrar</button>
@@ -495,7 +502,8 @@
 
     // Evita que o checkbox fique marcado "escondido" ao trocar de tipo e voltar.
     if(!visible.includes('jaContado')){
-      $('f-jaContado').checked = false;
+      $('f-jaContadoPraca').checked = false;
+      $('f-jaContadoBrinquedoteca').checked = false;
     }
 
     if(tipo === 'Empréstimo' && $('f-data').value){
@@ -572,7 +580,9 @@
           grupo: r.grupo || '',
           quantidade: (r.quantidade === undefined || r.quantidade === null || r.quantidade === '') ? '' : r.quantidade,
           obs: r.obs || '',
-          jaContado: r.jaContado || ''
+          jaContadoPraca: r.jaContadoPraca || '',
+          jaContadoBrinquedoteca: r.jaContadoBrinquedoteca || '',
+          jaContado: r.jaContado || r.jaContadoPraca || r.jaContadoBrinquedoteca || ''
         }));
         await window.storage.set(STORAGE_KEY, JSON.stringify(entries), false); // atualiza backup local
         updateCloudStatus();
@@ -729,7 +739,9 @@
     const grupo = visible.includes('grupo') ? $('f-grupo').value.trim() : '';
     const quantidade = visible.includes('quantidade') ? ($('f-qtd').value || 1) : '';
     const obs = visible.includes('obs') ? $('f-obs').value.trim() : '';
-    const jaContado = visible.includes('jaContado') ? ($('f-jaContado').checked ? '1' : '') : '';
+    const jaContadoPraca = visible.includes('jaContado') ? ($('f-jaContadoPraca').checked ? '1' : '') : '';
+    const jaContadoBrinquedoteca = visible.includes('jaContado') ? ($('f-jaContadoBrinquedoteca').checked ? '1' : '') : '';
+    const jaContado = (jaContadoPraca || jaContadoBrinquedoteca) ? '1' : '';
 
     if(tipo === 'Empréstimo' && !data){
       setStatus('Informe a data de retirada.', true);
@@ -738,7 +750,7 @@
 
     const newEntry = {
       id: 'v' + Date.now() + Math.random().toString(36).slice(2,7),
-      tipo, data, dataDevolucao, hora, grupo, quantidade, obs, jaContado
+      tipo, data, dataDevolucao, hora, grupo, quantidade, obs, jaContado, jaContadoPraca, jaContadoBrinquedoteca
     };
     entries.push(newEntry);
 
@@ -746,7 +758,8 @@
     $('f-obs').value = '';
     $('f-qtd').value = '1';
     $('f-hora').value = nowTime();
-    $('f-jaContado').checked = false;
+    $('f-jaContadoPraca').checked = false;
+    $('f-jaContadoBrinquedoteca').checked = false;
 
     await saveEntries();
     render();
