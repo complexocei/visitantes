@@ -673,16 +673,21 @@
     const inMonth = entries.filter(e => e.data && e.data.slice(0,7) === month);
 
     // Agrupa por dia, somando a quantidade de cada tipo naquele dia.
-    // Entradas marcadas como "jaContado" entram na coluna do seu tipo,
-    // mas não são somadas de novo no total do dia (já vieram de outra atividade).
+    // Um registro de Hora do Conto marcado como "também esteve em" Praça do
+    // Saber e/ou Brinquedoteca soma nessas colunas também — mas o "Total do
+    // dia" conta a visita da pessoa só uma vez (não soma de novo por coluna extra).
     const byDay = {};
     inMonth.forEach(e => {
       if(!byDay[e.data]) byDay[e.data] = { porTipo:{}, totalDia:0 };
       const qtd = Number(e.quantidade) || 0;
       byDay[e.data].porTipo[e.tipo] = (byDay[e.data].porTipo[e.tipo] || 0) + qtd;
-      if(!e.jaContado){
-        byDay[e.data].totalDia += qtd;
+      if(e.jaContadoPraca){
+        byDay[e.data].porTipo['Praça do Saber'] = (byDay[e.data].porTipo['Praça do Saber'] || 0) + qtd;
       }
+      if(e.jaContadoBrinquedoteca){
+        byDay[e.data].porTipo['Brinquedoteca'] = (byDay[e.data].porTipo['Brinquedoteca'] || 0) + qtd;
+      }
+      byDay[e.data].totalDia += qtd;
     });
     const days = Object.keys(byDay).sort();
 
