@@ -1,311 +1,527 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1b2050">
 <title>Visitantes — Biblioteca</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --paper:#eef0e5;
-    --paper-deep:#e4e7d9;
-    --card:#f8f7ef;
-    --line:#c7cbb4;
-    --ink:#233142;
-    --ink-soft:#5b6b78;
-    --stamp:#b9822c;
-    --stamp-dark:#7d5717;
-    --brick:#8a4a3a;
-    --sage:#65775b;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;}
-  .app{
-    background:var(--paper);
-    background-image:
-      repeating-linear-gradient(180deg, rgba(101,119,91,0.05) 0px, rgba(101,119,91,0.05) 1px, transparent 1px, transparent 34px);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
-    padding:28px 20px 60px;
-    min-height:100vh;
-  }
-  .sheet{
-    max-width:880px;
-    margin:0 auto;
+    --bg:#f3f5fa;
+    --bg-soft:#e9edf6;
+    --surface:#ffffff;
+    --field:#f6f8fc;
+    --line:#dde2ee;
+    --line-soft:#eceff6;
+    --ink:#1b2050;
+    --ink-soft:#586084;
+    --danger:#b03a28;
+    --ok:#0c6e4e;
+    --r-card:26px;
+    --r-field:14px;
+    --shadow:0 1px 2px rgba(27,32,80,.05), 0 14px 34px -14px rgba(27,32,80,.16);
+    --font-ui:'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-display:'Young Serif', Georgia, 'Times New Roman', serif;
   }
 
-  /* ---- Masthead ---- */
-  .masthead{
+  /* Cada atividade tem uma cor fixa, usada em todo o site. */
+  [data-tipo="Brinquedoteca"]{--c:#f06a55; --c-soft:#fde8e4; --c-ink:#a3321f;}
+  [data-tipo="Estudo"]{--c:#3b7cf5; --c-soft:#e3edff; --c-ink:#1b4bb3;}
+  [data-tipo="Praça do Saber"]{--c:#19b384; --c-soft:#dcf5ec; --c-ink:#0c6e4e;}
+  [data-tipo="Hora do Conto"]{--c:#f5ad1b; --c-soft:#fff1cf; --c-ink:#8a5900;}
+  [data-tipo="Empréstimo"]{--c:#8863ee; --c-soft:#ece6fb; --c-ink:#5333a8;}
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0; background:var(--bg);}
+  .app{
+    min-height:100vh;
+    color:var(--ink);
+    font-family:var(--font-ui);
+    font-size:15px;
+    line-height:1.5;
+    padding-bottom:64px;
+  }
+  button, input, select{font-family:inherit;}
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  /* ---- Topo ---- */
+  .hero{
+    position:relative;
+    background:var(--ink);
+    color:#fff;
+    padding:44px 20px 96px;
+  }
+  .hero-inner{
+    max-width:960px;
+    margin:0 auto;
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
-    border-bottom:3px solid var(--ink);
-    padding-bottom:14px;
-    margin-bottom:22px;
-    gap:16px;
+    flex-wrap:wrap;
+    gap:32px 48px;
   }
-  .masthead h1{
-    font-family:'Zilla Slab', serif;
-    font-weight:700;
-    font-size:clamp(26px, 4vw, 38px);
-    margin:0 0 4px;
-    letter-spacing:0.2px;
+  .hero-text{flex:1 1 320px; max-width:460px;}
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:clamp(30px, 5vw, 46px);
+    line-height:1.08;
+    letter-spacing:-0.01em;
+    margin:0 0 12px;
   }
-  .masthead p{
-    margin:0;
-    color:var(--ink-soft);
-    font-size:13.5px;
-    letter-spacing:0.3px;
+  .hero-sub{
+    margin:0 0 22px;
+    max-width:38ch;
+    font-size:16px;
+    color:rgba(255,255,255,.8);
   }
-  .stamp{
-    flex-shrink:0;
-    width:104px;
-    height:104px;
-    border:3px solid var(--stamp);
-    border-radius:50%;
-    color:var(--stamp-dark);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    transform:rotate(-9deg);
-    font-family:'IBM Plex Mono', monospace;
-    line-height:1.25;
-    padding:6px;
-    mix-blend-mode:multiply;
-  }
-  .stamp b{
+  .wave{
+    position:absolute;
+    left:0; right:0; bottom:-1px;
+    width:100%; height:56px;
     display:block;
-    font-size:11px;
-    letter-spacing:1.5px;
-  }
-  .stamp span{
-    display:block;
-    font-size:13px;
-    font-weight:600;
-    margin-top:3px;
+    fill:var(--bg);
   }
 
-  /* ---- Cards ---- */
+  /* Resumo de hoje: uma lombada por atividade, a altura segue a contagem. */
+  .today{flex:0 1 380px; min-width:280px;}
+  .today-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px;}
+  .today-n{font-family:var(--font-display); font-size:44px; line-height:1;}
+  .today-l{font-size:14px; color:rgba(255,255,255,.8);}
+  .spines{display:grid; grid-template-columns:repeat(5, 1fr); gap:10px;}
+  .spine{display:flex; flex-direction:column; align-items:center; min-width:0; text-align:center;}
+  .spine-n{font-weight:700; font-size:14px; margin-bottom:6px;}
+  .spine-stack{
+    display:flex; align-items:flex-end;
+    width:100%; height:92px;
+    border-bottom:3px solid rgba(255,255,255,.3);
+  }
+  .spine-bar{
+    position:relative;
+    display:block;
+    width:100%;
+    height:var(--h, 6px);
+    background:var(--c);
+    border-radius:10px 10px 3px 3px;
+    overflow:hidden;
+    transition:height .8s cubic-bezier(.2,.8,.2,1);
+  }
+  .spine-bar::after{
+    content:"";
+    position:absolute; left:0; right:0; top:8px;
+    height:3px;
+    background:rgba(255,255,255,.55);
+  }
+  .spine:nth-child(2) .spine-bar{transition-delay:.06s;}
+  .spine:nth-child(3) .spine-bar{transition-delay:.12s;}
+  .spine:nth-child(4) .spine-bar{transition-delay:.18s;}
+  .spine:nth-child(5) .spine-bar{transition-delay:.24s;}
+  .spine-l{
+    margin-top:8px;
+    min-height:2.5em;
+    font-size:11.5px;
+    line-height:1.25;
+    color:rgba(255,255,255,.82);
+    hyphens:manual;
+  }
+
+  /* ---- Cartões ---- */
+  .sheet{
+    position:relative;
+    max-width:960px;
+    margin:-40px auto 0;
+    padding:0 20px;
+  }
   .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:20px 22px;
-    margin-bottom:18px;
-    box-shadow:0 1px 0 rgba(35,49,66,0.04);
+    background:var(--surface);
+    border-radius:var(--r-card);
+    padding:28px;
+    margin-bottom:22px;
+    box-shadow:var(--shadow);
   }
   .card h2{
-    font-family:'Zilla Slab', serif;
-    font-size:16px;
-    margin:0 0 14px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:var(--sage);
-    border-bottom:1px dashed var(--line);
-    padding-bottom:8px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:22px;
+    letter-spacing:-0.005em;
+    margin:0 0 20px;
   }
 
+  /* ---- Formulário ---- */
   .form-grid{
     display:flex;
     flex-wrap:wrap;
-    gap:12px;
-    align-items:end;
+    gap:18px 16px;
+    align-items:flex-end;
   }
   .form-grid .ff{flex:1 1 150px; min-width:150px;}
-  .form-grid .ff[data-field="grupo"]{flex:1 1 220px;}
-  .form-grid .ff[data-field="obs"]{flex:1 1 220px;}
+  .form-grid .ff[data-field="tipo"]{flex:1 1 100%;}
+  .form-grid .ff[data-field="grupo"]{flex:2 1 240px;}
+  .form-grid .ff[data-field="obs"]{flex:2 1 240px;}
   .form-grid .ff[data-field="jaContado"]{flex:1 1 100%;}
-  .form-grid .ff[data-field="submit"]{flex:0 0 auto; min-width:auto;}
-  .form-grid .ff.is-hidden{display:none;}
-  label{
-    display:block;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.6px;
-    color:var(--ink-soft);
-    margin-bottom:5px;
-    font-weight:600;
-  }
-  input, select{
-    width:100%;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:14px;
-    padding:9px 10px;
-    border:1px solid var(--line);
-    border-radius:2px;
-    background:#fff;
-    color:var(--ink);
-  }
-  input:focus, select:focus{
-    outline:2px solid var(--sage);
-    outline-offset:1px;
-  }
-  .btn{
-    font-family:'IBM Plex Sans', sans-serif;
-    font-weight:600;
-    font-size:13.5px;
-    letter-spacing:0.3px;
-    border:none;
-    border-radius:2px;
-    padding:10px 16px;
-    cursor:pointer;
-    transition:opacity .15s ease;
-  }
-  .btn:hover{opacity:0.88;}
-  .btn:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
-  .btn-primary{background:var(--ink); color:var(--paper);}
-  .btn-stamp{background:var(--stamp); color:#fff;}
-  .btn-ghost{background:transparent; color:var(--brick); border:1px solid var(--brick); padding:6px 10px; font-size:12px;}
+  .form-grid .ff[data-field="submit"]{flex:0 0 auto; min-width:0; margin-left:auto;}
+  .form-grid .ff.is-hidden{display:none !important;}
 
-  .toolbar{
-    display:flex;
-    align-items:flex-end;
-    gap:14px;
-    flex-wrap:wrap;
+  label, .lbl{
+    display:block;
+    margin:0 0 6px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
   }
-  .toolbar .field{min-width:170px;}
+  input[type="text"], input[type="date"], input[type="time"],
+  input[type="number"], input[type="month"], select{
+    width:100%;
+    min-height:46px;
+    padding:11px 14px;
+    font-size:15px;
+    color:var(--ink);
+    background-color:var(--field);
+    border:1.5px solid var(--line);
+    border-radius:var(--r-field);
+    transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder{color:#7a82a0;}
+  select{
+    appearance:none;
+    -webkit-appearance:none;
+    padding-right:40px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23586084' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+  }
+  input:focus-visible, select:focus-visible{
+    outline:none;
+    border-color:var(--ink);
+    background-color:#fff;
+    box-shadow:0 0 0 4px rgba(27,32,80,.12);
+  }
+
+  /* Tipo de visita: um toque escolhe a atividade. */
+  .chips{display:flex; flex-wrap:wrap; gap:10px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:9px;
+    min-height:46px;
+    padding:10px 18px;
+    font-size:15px; font-weight:600;
+    color:var(--ink);
+    background:var(--surface);
+    border:1.5px solid var(--line);
+    border-radius:999px;
+    cursor:pointer;
+    transition:background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease, transform .1s ease;
+  }
+  .chip:hover{background:var(--c-soft); border-color:var(--c);}
+  .chip:active{transform:scale(.97);}
+  .chip:focus-visible{outline:3px solid rgba(27,32,80,.35); outline-offset:2px;}
+  .chip-dot{
+    flex:none;
+    width:12px; height:12px;
+    border-radius:50%;
+    background:var(--c);
+    transition:transform .18s ease;
+  }
+  .chip[aria-pressed="true"]{
+    background:var(--c-soft);
+    border-color:var(--c);
+    color:var(--c-ink);
+    box-shadow:inset 0 0 0 1px var(--c);
+  }
+  .chip[aria-pressed="true"] .chip-dot{transform:scale(1.3);}
+
+  /* "Também esteve em": caixas de marcar em formato de pílula. */
+  .also-hint{margin:0 0 10px; font-size:13px; color:var(--ink-soft);}
+  .check-pills{display:flex; flex-wrap:wrap; gap:10px;}
+  .check-pill{position:relative; display:inline-flex; margin:0; cursor:pointer;}
+  .check-pill input{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    margin:0; opacity:0; cursor:pointer;
+  }
+  .check-pill span{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:9px 16px;
+    font-size:14.5px; font-weight:600;
+    color:var(--ink-soft);
+    border:1.5px dashed var(--line);
+    border-radius:999px;
+    transition:background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .check-pill span::before{
+    content:"";
+    flex:none;
+    width:16px; height:16px;
+    border:2px solid var(--c);
+    border-radius:50%;
+    transition:background-color .15s ease, box-shadow .15s ease;
+  }
+  .check-pill input:checked + span{
+    border-style:solid;
+    border-color:var(--c);
+    background:var(--c-soft);
+    color:var(--c-ink);
+  }
+  .check-pill input:checked + span::before{
+    background:var(--c);
+    box-shadow:inset 0 0 0 3px var(--c-soft);
+  }
+  .check-pill input:focus-visible + span{outline:3px solid rgba(27,32,80,.35); outline-offset:2px;}
+
+  /* ---- Botões ---- */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:46px;
+    padding:12px 22px;
+    font-size:15px; font-weight:600;
+    border:0;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background-color .15s ease, transform .1s ease;
+  }
+  .btn:active{transform:scale(.97);}
+  .btn:focus-visible{outline:3px solid rgba(27,32,80,.35); outline-offset:3px;}
+  .btn:disabled{opacity:.6; cursor:progress;}
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-primary:hover:not(:disabled){background:#2b3270;}
+  .btn-light{background:#fff; color:var(--ink);}
+  .btn-light:hover{background:var(--bg-soft);}
+  .hero .btn:focus-visible{outline-color:#fff;}
+  .btn-quiet{background:var(--bg-soft); color:var(--ink);}
+  .btn-quiet:hover{background:#dde4f2;}
+  .btn-remove{min-height:36px; padding:8px 14px; font-size:13.5px; background:transparent; color:var(--danger);}
+  .btn-remove:hover{background:#fbe9e5;}
+
+  .status-msg{
+    min-height:22px;
+    margin-top:16px;
+    font-size:14px; font-weight:500;
+    color:var(--ok);
+  }
+  .status-msg.is-warn{color:var(--danger);}
+
+  /* ---- Filtros ---- */
+  .toolbar{
+    display:flex; align-items:flex-end; flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:22px;
+  }
+  .toolbar .field{flex:1 1 220px; min-width:170px; max-width:300px;}
   .toolbar .spacer{flex:1;}
   .count-pill{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
+    display:inline-block;
+    padding:7px 14px;
+    font-size:13.5px; font-weight:600;
     color:var(--ink-soft);
+    background:var(--bg-soft);
+    border-radius:999px;
   }
+  .count-pill:empty{display:none;}
 
-  /* ---- Table ---- */
+  /* ---- Tabelas ---- */
+  .table-wrap{overflow-x:auto;}
   table{
     width:100%;
     border-collapse:collapse;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
+    font-size:14.5px;
+    font-variant-numeric:tabular-nums;
   }
   thead th{
+    padding:10px 12px;
     text-align:left;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:0.6px;
+    font-size:13px; font-weight:600;
     color:var(--ink-soft);
-    border-bottom:2px solid var(--ink);
-    padding:6px 8px;
+    white-space:nowrap;
+    border-bottom:1.5px solid var(--line);
   }
   tbody td{
-    padding:8px 8px;
-    border-bottom:1px dotted var(--line);
-    vertical-align:top;
+    padding:14px 12px;
+    vertical-align:middle;
+    border-bottom:1px solid var(--line-soft);
   }
-  tbody tr:hover{background:rgba(101,119,91,0.06);}
+  tbody tr:last-child td{border-bottom:0;}
+  .records tbody tr{transition:background-color .12s ease;}
+  .records tbody tr:hover{background:var(--field);}
+
   .tipo-tag{
-    display:inline-block;
-    font-family:'IBM Plex Sans', sans-serif;
-    font-size:11px;
-    font-weight:600;
-    padding:2px 8px;
-    border-radius:10px;
-    border:1px solid currentColor;
+    display:inline-flex; align-items:center; gap:7px;
+    padding:4px 12px 4px 10px;
+    font-size:13px; font-weight:600;
+    color:var(--c-ink);
+    background:var(--c-soft);
+    border-radius:999px;
+    white-space:nowrap;
   }
-  .tipo-Brinquedoteca{color:#8a4a3a;}
-  .tipo-Jornal{color:#3a5b8a;}
-  .tipo-Praça\ do\ Saber{color:#65775b;}
-  .tipo-Hora\ do\ Conto{color:#b9822c;}
-  .tipo-Empréstimo{color:#5b4a8a;}
+  .tipo-tag::before{
+    content:"";
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--c);
+  }
 
   .report-title{
-    font-family:'Zilla Slab', serif;
-    font-size:18px;
-    text-transform:capitalize;
+    margin:4px 0 18px;
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:24px;
+    letter-spacing:-0.005em;
+  }
+  .report-title::first-letter{text-transform:uppercase;}
+  .report thead th{
+    padding:14px 12px 12px;
+    text-align:center;
     color:var(--ink);
-    margin:2px 0 14px;
+    border-bottom:0;
   }
-  tfoot td{
-    border-top:2px solid var(--ink);
-    border-bottom:none;
-    font-weight:600;
-    padding:8px;
+  .report thead th:first-child{text-align:left;}
+  .report thead th[data-tipo]{box-shadow:inset 0 4px 0 var(--c);}
+  .report th, .report td{
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
   }
-  tfoot tr td:first-child{font-family:'IBM Plex Sans', sans-serif; text-transform:uppercase; font-size:11px; letter-spacing:0.5px; color:var(--ink-soft);}
+  .report tbody td{text-align:center;}
+  .report tbody td:first-child{text-align:left; font-weight:600;}
+  .report tbody tr:nth-child(even){background:var(--field);}
+  .report td.zero{color:#858dab;}
+  .report td.total, .report th.total{font-weight:700;}
+  .report tfoot td{
+    padding:14px 12px;
+    text-align:center;
+    font-weight:700;
+    background:var(--bg-soft);
+  }
+  .report tfoot td:first-child{text-align:left; border-radius:14px 0 0 14px;}
+  .report tfoot td:last-child{border-radius:0 14px 14px 0;}
+  .star{cursor:help;}
+  .legend{margin:14px 0 0; font-size:13.5px; color:var(--ink-soft);}
 
   .empty{
+    margin-top:8px;
+    padding:36px 16px;
     text-align:center;
+    font-size:15px;
     color:var(--ink-soft);
-    padding:26px 10px;
-    font-size:13px;
-    font-style:italic;
+    border:1.5px dashed var(--line);
+    border-radius:18px;
   }
 
-  /* ---- Summary ---- */
-  .summary-grid{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr);
-    gap:10px;
-  }
-  @media (max-width:700px){ .summary-grid{grid-template-columns:repeat(2,1fr);} }
-  .summary-item{
-    border:1px solid var(--line);
-    border-left:4px solid var(--sage);
-    padding:10px 12px;
-    background:#fff;
-  }
-  .summary-item .n{
-    font-family:'Zilla Slab', serif;
-    font-size:24px;
-    font-weight:700;
-    display:block;
-  }
-  .summary-item .l{
-    font-size:11px;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-    letter-spacing:0.4px;
-  }
-  .summary-total{
-    margin-top:12px;
-    text-align:right;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    color:var(--ink-soft);
-  }
-  .summary-total b{color:var(--ink); font-size:16px;}
+  /* ---- Celular ---- */
+  @media (max-width:720px){
+    .hero{padding:32px 18px 88px;}
+    .sheet{padding:0 14px;}
+    .card{padding:22px 18px; border-radius:22px;}
+    .form-grid .ff[data-field="submit"]{flex:1 1 100%; margin-left:0;}
+    .form-grid .ff[data-field="submit"] .btn{width:100%;}
+    .toolbar .field{max-width:none;}
 
-  .status-msg{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    color:var(--sage);
-    min-height:16px;
+    /* A tabela de registros vira uma lista de cartões. */
+    .records thead{display:none;}
+    .records, .records tbody{display:block;}
+    .records tbody tr{
+      display:flex; flex-direction:column; gap:2px;
+      padding:14px 16px;
+      margin-bottom:12px;
+      background:var(--surface);
+      border:1.5px solid var(--line-soft);
+      border-radius:18px;
+    }
+    .records tbody tr:hover{background:var(--surface);}
+    .records tbody td{
+      display:flex; justify-content:space-between; gap:16px;
+      padding:3px 0;
+      text-align:right;
+      border:0;
+    }
+    .records tbody td::before{
+      content:attr(data-label);
+      flex:none;
+      font-size:13px;
+      text-align:left;
+      color:var(--ink-soft);
+    }
+    .records tbody td.is-empty{display:none;}
+    .records tbody td[data-label="Tipo"]{order:-1; justify-content:flex-start; margin-bottom:6px;}
+    .records tbody td[data-label="Tipo"]::before{display:none;}
+    .records tbody td.row-actions{order:99; justify-content:flex-end; margin-top:6px;}
+    .records tbody td.row-actions::before{display:none;}
+  }
+  @media (max-width:480px){
+    .spines{gap:6px;}
+    .spine-l{font-size:11px;}
   }
 
-  /* ---- Print ---- */
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{transition-duration:.01ms !important; animation-duration:.01ms !important;}
+  }
+
+  /* ---- Impressão ---- */
   @media print{
-    body,.app{background:#fff; padding:0;}
+    @page{margin:14mm;}
+    body, .app{background:#fff;}
+    .app{padding:0;}
     .no-print{display:none !important;}
-    .card{box-shadow:none; border:1px solid #999; break-inside:avoid;}
-    .sheet{max-width:100%;}
-    .stamp{mix-blend-mode:normal;}
+    .hero{padding:0 0 14px; color:#000; background:none;}
+    .hero h1{font-size:28px;}
+    .hero-sub, .wave, .today{display:none;}
+    .sheet{max-width:100%; margin:0; padding:0;}
+    .card{padding:18px; border:1px solid #999; border-radius:12px; box-shadow:none; break-inside:avoid;}
+    .report tbody tr:nth-child(even){background:none;}
+    .report td.zero{color:#777;}
     tbody tr{break-inside:avoid;}
   }
 </style>
+</head>
+<body>
 
 <div class="app">
-  <div class="sheet">
 
-    <div class="masthead">
-      <div>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
         <h1>Controle de Visitantes</h1>
-        <p>Ficha de registro de atividades &middot; biblioteca</p>
+        <p class="hero-sub">Registre as atividades do dia e imprima o relatório do mês.</p>
+        <button class="btn btn-light no-print" id="btnPrintTop" type="button">Imprimir relatório</button>
       </div>
-      <div class="no-print" style="display:flex; align-items:center; gap:14px;">
-        <button class="btn btn-stamp" id="btnPrintTop">Imprimir relatório</button>
-      </div>
-      <div class="stamp" id="stampBox">
-        <div><b>REGISTRADO</b><span id="stampDate">--/--/----</span></div>
-      </div>
+
+      <section class="today no-print" aria-label="Resumo de hoje">
+        <div class="today-head">
+          <span class="today-n" id="todayTotal">0</span>
+          <span class="today-l">registrados hoje</span>
+        </div>
+        <div class="spines" id="spines">
+          <div class="spine" data-tipo="Brinquedoteca"><span class="spine-n">0</span><span class="spine-stack"><span class="spine-bar"></span></span><span class="spine-l">Brinque&shy;doteca</span></div>
+          <div class="spine" data-tipo="Estudo"><span class="spine-n">0</span><span class="spine-stack"><span class="spine-bar"></span></span><span class="spine-l">Estudo</span></div>
+          <div class="spine" data-tipo="Praça do Saber"><span class="spine-n">0</span><span class="spine-stack"><span class="spine-bar"></span></span><span class="spine-l">Praça do Saber</span></div>
+          <div class="spine" data-tipo="Hora do Conto"><span class="spine-n">0</span><span class="spine-stack"><span class="spine-bar"></span></span><span class="spine-l">Hora do Conto</span></div>
+          <div class="spine" data-tipo="Empréstimo"><span class="spine-n">0</span><span class="spine-stack"><span class="spine-bar"></span></span><span class="spine-l">Emprés&shy;timo</span></div>
+        </div>
+      </section>
     </div>
 
-    <div class="card no-print">
-      <h2>Novo registro</h2>
+    <svg class="wave no-print" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M0,38 C220,88 460,2 720,36 C980,70 1210,8 1440,46 L1440,80 L0,80 Z"/>
+    </svg>
+  </header>
+
+  <main class="sheet">
+
+    <section class="card no-print" aria-labelledby="h-novo">
+      <h2 id="h-novo">Novo registro</h2>
       <div class="form-grid" id="formGrid">
         <div class="ff" data-field="tipo">
-          <label for="f-tipo">Tipo de visita</label>
-          <select id="f-tipo">
+          <span class="lbl" id="lbl-tipo">Tipo de visita</span>
+          <div class="chips" id="tipoChips" role="group" aria-labelledby="lbl-tipo"></div>
+          <select id="f-tipo" class="sr-only" tabindex="-1" aria-hidden="true">
             <option>Brinquedoteca</option>
-            <option>Jornal</option>
+            <option>Estudo</option>
             <option>Praça do Saber</option>
             <option>Hora do Conto</option>
             <option>Empréstimo</option>
@@ -335,26 +551,27 @@
           <label for="f-obs">Observações</label>
           <input type="text" id="f-obs" placeholder="Opcional">
         </div>
-        <div class="ff" data-field="jaContado" style="display:flex; flex-direction:column; gap:6px; padding-bottom:9px;">
-          <label style="margin:0;">Também esteve em (não contar 2x no total)</label>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="f-jaContadoPraca" style="width:auto;">
-            <label for="f-jaContadoPraca" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Praça do Saber</label>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="f-jaContadoBrinquedoteca" style="width:auto;">
-            <label for="f-jaContadoBrinquedoteca" style="margin:0; text-transform:none; letter-spacing:normal; font-weight:500; font-size:13px; color:var(--ink);">Brinquedoteca</label>
+        <div class="ff" data-field="jaContado" role="group" aria-labelledby="lbl-also">
+          <span class="lbl" id="lbl-also">Também esteve em</span>
+          <p class="also-hint">Marque para não contar a mesma pessoa duas vezes no total do dia.</p>
+          <div class="check-pills">
+            <label class="check-pill" data-tipo="Praça do Saber">
+              <input type="checkbox" id="f-jaContadoPraca"><span>Praça do Saber</span>
+            </label>
+            <label class="check-pill" data-tipo="Brinquedoteca">
+              <input type="checkbox" id="f-jaContadoBrinquedoteca"><span>Brinquedoteca</span>
+            </label>
           </div>
         </div>
         <div class="ff" data-field="submit">
-          <button class="btn btn-primary" id="btnAdd">Registrar</button>
+          <button class="btn btn-primary" id="btnAdd" type="button">Registrar</button>
         </div>
       </div>
-      <div class="status-msg" id="statusMsg"></div>
-    </div>
+      <div class="status-msg" id="statusMsg" role="status" aria-live="polite"></div>
+    </section>
 
-    <div class="card no-print">
-      <h2>Gerenciar registros</h2>
+    <section class="card no-print" aria-labelledby="h-gerenciar">
+      <h2 id="h-gerenciar">Gerenciar registros</h2>
       <div class="toolbar">
         <div class="field">
           <label for="f-filtro-data">Mostrar registros de (padrão: últimos 7 dias)</label>
@@ -365,35 +582,37 @@
           <select id="f-filtro-tipo">
             <option value="">Todos os tipos</option>
             <option>Brinquedoteca</option>
-            <option>Jornal</option>
+            <option>Estudo</option>
             <option>Praça do Saber</option>
             <option>Hora do Conto</option>
             <option>Empréstimo</option>
           </select>
         </div>
-        <button class="btn btn-ghost" id="btnClearFilter" style="border-color:var(--ink-soft); color:var(--ink-soft);">Ver todos</button>
+        <button class="btn btn-quiet" id="btnClearFilter" type="button">Ver todos</button>
         <div class="spacer"></div>
         <span class="count-pill" id="countPill"></span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Tipo</th>
-            <th>Visitante / turma</th>
-            <th>Qtd.</th>
-            <th>Devolução</th>
-            <th>Hora</th>
-            <th>Observações</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+      <div class="table-wrap">
+        <table class="records">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Visitante / turma</th>
+              <th>Qtd.</th>
+              <th>Devolução</th>
+              <th>Hora</th>
+              <th>Observações</th>
+              <th><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
       <div class="empty" id="emptyMsg" style="display:none;">Nenhum registro encontrado ainda. Use o formulário acima para começar.</div>
-    </div>
+    </section>
 
-    <div class="card" id="reportCard">
+    <section class="card" id="reportCard" aria-labelledby="reportTitle">
       <h2 class="no-print">Relatório mensal para impressão</h2>
       <div class="toolbar no-print">
         <div class="field">
@@ -401,22 +620,24 @@
           <input type="month" id="f-reportMonth">
         </div>
         <div class="spacer"></div>
-        <button class="btn btn-stamp" id="btnPrint">Imprimir relatório</button>
+        <button class="btn btn-primary" id="btnPrint" type="button">Imprimir relatório</button>
       </div>
 
       <h3 id="reportTitle" class="report-title"></h3>
-      <table>
-        <thead>
-          <tr id="reportHeadRow"></tr>
-        </thead>
-        <tbody id="reportBody"></tbody>
-        <tfoot id="reportFoot"></tfoot>
-      </table>
+      <div class="table-wrap">
+        <table class="report">
+          <thead>
+            <tr id="reportHeadRow"></tr>
+          </thead>
+          <tbody id="reportBody"></tbody>
+          <tfoot id="reportFoot"></tfoot>
+        </table>
+      </div>
       <div class="empty" id="reportEmpty" style="display:none;">Nenhuma visita registrada neste mês.</div>
-      <p id="reportLegend" class="no-print" style="display:none; font-size:12px; color:var(--ink-soft); margin-top:8px;">* Dia com visitante(s) contado(s) em mais de uma atividade — o total do dia não conta essa pessoa duas vezes.</p>
-    </div>
+      <p id="reportLegend" class="legend no-print" style="display:none;">* Dia com visitante(s) contado(s) em mais de uma atividade — o total do dia não conta essa pessoa duas vezes.</p>
+    </section>
 
-  </div>
+  </main>
 </div>
 
 <script>
@@ -425,7 +646,7 @@
   const SHEET_URL_KEY = 'biblioteca-sheet-url';
   // Link fixo do Web App (Google Apps Script) — já configurado, não precisa colar de novo.
   const DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxwfg5kkKmwBe3feeE1EXx8lXyDN2Loi1vnY9fQUY7EmB7gBhi6j344mgEBiEX_I0BE/exec';
-  const TIPOS = ['Brinquedoteca','Jornal','Praça do Saber','Hora do Conto','Empréstimo'];
+  const TIPOS = ['Brinquedoteca','Estudo','Praça do Saber','Hora do Conto','Empréstimo'];
   let entries = [];
   let sheetUrl = '';
   let filterDate = '';
@@ -435,7 +656,7 @@
   // Quais campos aparecem no formulário para cada tipo de visita.
   const FIELDS_BY_TIPO = {
     'Empréstimo':       ['data','dataDevolucao','quantidade'],
-    'Jornal':           ['data','quantidade'],
+    'Estudo':           ['data','quantidade'],
     'Brinquedoteca':    ['data','quantidade','grupo'],
     'Praça do Saber':   ['data','hora','grupo','quantidade','obs'],
     'Hora do Conto':    ['data','hora','grupo','quantidade','obs','jaContado']
@@ -451,7 +672,7 @@
   // Unidade usada no resumo (para diferenciar livros de pessoas).
   const QTD_UNIT_BY_TIPO = {
     'Empréstimo': 'livros',
-    'Jornal': 'pessoas',
+    'Estudo': 'pessoas',
     'Brinquedoteca': 'pessoas',
     'Praça do Saber': 'pessoas',
     'Hora do Conto': 'pessoas'
@@ -462,7 +683,7 @@
 
   function todayStr(){
     const d = new Date();
-    return d.toISOString().slice(0,10);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
   function nowTime(){
     const d = new Date();
@@ -510,6 +731,7 @@
     if(tipo === 'Empréstimo' && $('f-data').value){
       $('f-dataDevolucao').value = addDays($('f-data').value, DIAS_EMPRESTIMO);
     }
+    syncChips();
   }
   function normalizeDate(v){
     if(!v) return '';
@@ -568,13 +790,15 @@
     }catch(e){
       entries = [];
     }
+    // Registros antigos salvos como "Jornal" passam a aparecer como "Estudo".
+    entries.forEach(e => { if(e.tipo === 'Jornal') e.tipo = 'Estudo'; });
 
     if(sheetUrl){
       try{
         const rows = await sheetRequest('GET');
         entries = (rows || []).map(r => ({
           id: String(r.id),
-          tipo: r.tipo || '',
+          tipo: (r.tipo === 'Jornal' ? 'Estudo' : (r.tipo || '')),
           data: normalizeDate(r.data),
           dataDevolucao: normalizeDate(r.dataDevolucao),
           hora: r.hora || '',
@@ -606,7 +830,7 @@
   function setStatus(msg, isWarn){
     const el = $('statusMsg');
     el.textContent = msg || '';
-    el.style.color = isWarn ? 'var(--brick)' : 'var(--sage)';
+    el.classList.toggle('is-warn', !!isWarn);
     if(msg){ setTimeout(()=>{ if(el.textContent === msg) el.textContent=''; }, 3500); }
   }
 
@@ -622,10 +846,6 @@
     });
   }
 
-  function tipoClass(tipo){
-    return 'tipo-' + tipo.replace(/ /g, '\\ ');
-  }
-
   function render(){
     const list = getFiltered().slice().sort((a,b) => {
       if(a.data !== b.data) return b.data.localeCompare(a.data);
@@ -638,16 +858,17 @@
       ? 'Nenhum registro nos últimos 7 dias. Clique em "Ver todos" para consultar datas anteriores.'
       : 'Nenhum registro encontrado ainda. Use o formulário acima para começar.';
     $('emptyMsg').style.display = list.length ? 'none' : 'block';
+    const cel = (label, val) => `<td data-label="${label}"${val ? '' : ' class="is-empty"'}>${val || '&mdash;'}</td>`;
     tbody.innerHTML = list.map(e => `
       <tr>
-        <td>${fmtDate(e.data)}</td>
-        <td><span class="tipo-tag ${tipoClass(e.tipo)}">${escapeHtml(e.tipo)}</span></td>
-        <td>${escapeHtml(e.grupo) || '&mdash;'}</td>
-        <td>${escapeHtml(e.quantidade)}</td>
-        <td>${e.dataDevolucao ? fmtDate(e.dataDevolucao) : '&mdash;'}</td>
-        <td>${escapeHtml(e.hora) || '&mdash;'}</td>
-        <td>${escapeHtml(e.obs) || '&mdash;'}</td>
-        <td class="no-print"><button class="btn btn-ghost" data-del="${e.id}">remover</button></td>
+        <td data-label="Data">${fmtDate(e.data)}</td>
+        <td data-label="Tipo"><span class="tipo-tag" data-tipo="${escapeHtml(e.tipo)}">${escapeHtml(e.tipo)}</span></td>
+        ${cel('Visitante / turma', escapeHtml(e.grupo))}
+        <td data-label="Qtd.">${escapeHtml(e.quantidade)}</td>
+        ${cel('Devolução', e.dataDevolucao ? fmtDate(e.dataDevolucao) : '')}
+        ${cel('Hora', escapeHtml(e.hora))}
+        ${cel('Observações', escapeHtml(e.obs))}
+        <td class="no-print row-actions"><button type="button" class="btn btn-remove" data-del="${escapeHtml(e.id)}" aria-label="Remover registro de ${escapeHtml(e.tipo)} em ${fmtDate(e.data)}">Remover</button></td>
       </tr>
     `).join('');
 
@@ -661,9 +882,12 @@
     if(filterTipo) partesFiltro.push(filterTipo);
     if(partesFiltro.length) sufixo = ' — filtrado: ' + partesFiltro.join(', ');
     $('countPill').textContent = list.length + ' registro(s)' + sufixo;
+
+    renderToday();
+    renderReport();
   }
 
-  const REPORT_COLUMNS = ['Empréstimo','Hora do Conto','Jornal','Brinquedoteca','Praça do Saber'];
+  const REPORT_COLUMNS = ['Empréstimo','Hora do Conto','Estudo','Brinquedoteca','Praça do Saber'];
   const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
   function monthLabel(month){
@@ -672,37 +896,82 @@
     return MESES_PT[m-1] + ' de ' + y;
   }
 
+  function newDay(){
+    return { porTipo:{}, totalDia:0, compartilhado:false };
+  }
+  // Soma um registro num dia. Um registro de Hora do Conto marcado como "também esteve em"
+  // Praça do Saber e/ou Brinquedoteca soma nessas colunas também, mas o total do dia
+  // conta a pessoa só uma vez.
+  function addToDay(day, e){
+    const qtd = Number(e.quantidade) || 0;
+    day.porTipo[e.tipo] = (day.porTipo[e.tipo] || 0) + qtd;
+    if(e.jaContadoPraca){
+      day.porTipo['Praça do Saber'] = (day.porTipo['Praça do Saber'] || 0) + qtd;
+      day.compartilhado = true;
+    }
+    if(e.jaContadoBrinquedoteca){
+      day.porTipo['Brinquedoteca'] = (day.porTipo['Brinquedoteca'] || 0) + qtd;
+      day.compartilhado = true;
+    }
+    day.totalDia += qtd;
+  }
+
+  // Resumo de hoje no topo: uma lombada por atividade, altura proporcional à contagem.
+  function renderToday(){
+    const hojeStr = todayStr();
+    const hoje = newDay();
+    entries.forEach(e => { if(e.data === hojeStr) addToDay(hoje, e); });
+    $('todayTotal').textContent = hoje.totalDia;
+
+    const spines = Array.from(document.querySelectorAll('#spines .spine'));
+    const max = Math.max(1, ...spines.map(s => hoje.porTipo[s.dataset.tipo] || 0));
+    void $('spines').offsetHeight; // garante que a primeira subida das lombadas seja animada
+    spines.forEach(s => {
+      const t = s.dataset.tipo;
+      const n = hoje.porTipo[t] || 0;
+      s.querySelector('.spine-n').textContent = n;
+      s.querySelector('.spine-bar').style.setProperty('--h', (n ? 14 + Math.round(n / max * 78) : 6) + 'px');
+      s.title = n + ' ' + (QTD_UNIT_BY_TIPO[t] || '') + ' hoje — ' + t;
+    });
+  }
+
+  // Tipo de visita: botões que controlam o <select> escondido (que continua sendo a fonte do valor).
+  function initTipoChips(){
+    const wrap = $('tipoChips');
+    wrap.innerHTML = TIPOS.map(t =>
+      `<button type="button" class="chip" data-tipo="${escapeHtml(t)}" aria-pressed="false"><span class="chip-dot"></span>${escapeHtml(t)}</button>`
+    ).join('');
+    wrap.addEventListener('click', (ev) => {
+      const b = ev.target.closest('.chip');
+      if(!b) return;
+      $('f-tipo').value = b.dataset.tipo;
+      $('f-tipo').dispatchEvent(new Event('change'));
+    });
+  }
+  function syncChips(){
+    const atual = $('f-tipo').value;
+    document.querySelectorAll('#tipoChips .chip').forEach(b => {
+      b.setAttribute('aria-pressed', String(b.dataset.tipo === atual));
+    });
+  }
+
   function renderReport(){
     const month = $('f-reportMonth').value;
     $('reportTitle').textContent = 'Relatório de visitas \u2014 ' + (monthLabel(month) || '');
 
     const inMonth = entries.filter(e => e.data && e.data.slice(0,7) === month);
 
-    // Agrupa por dia, somando a quantidade de cada tipo naquele dia.
-    // Um registro de Hora do Conto marcado como "também esteve em" Praça do
-    // Saber e/ou Brinquedoteca soma nessas colunas também — mas o "Total do
-    // dia" conta a visita da pessoa só uma vez (não soma de novo por coluna extra).
     const byDay = {};
     inMonth.forEach(e => {
-      if(!byDay[e.data]) byDay[e.data] = { porTipo:{}, totalDia:0, compartilhado:false };
-      const qtd = Number(e.quantidade) || 0;
-      byDay[e.data].porTipo[e.tipo] = (byDay[e.data].porTipo[e.tipo] || 0) + qtd;
-      if(e.jaContadoPraca){
-        byDay[e.data].porTipo['Praça do Saber'] = (byDay[e.data].porTipo['Praça do Saber'] || 0) + qtd;
-        byDay[e.data].compartilhado = true;
-      }
-      if(e.jaContadoBrinquedoteca){
-        byDay[e.data].porTipo['Brinquedoteca'] = (byDay[e.data].porTipo['Brinquedoteca'] || 0) + qtd;
-        byDay[e.data].compartilhado = true;
-      }
-      byDay[e.data].totalDia += qtd;
+      if(!byDay[e.data]) byDay[e.data] = newDay();
+      addToDay(byDay[e.data], e);
     });
     const days = Object.keys(byDay).sort();
 
     // Cabeçalho
     $('reportHeadRow').innerHTML = '<th>Data</th>' +
-      REPORT_COLUMNS.map(t => `<th>${escapeHtml(t)}</th>`).join('') +
-      '<th>Total do dia</th>';
+      REPORT_COLUMNS.map(t => `<th data-tipo="${escapeHtml(t)}">${escapeHtml(t)}</th>`).join('') +
+      '<th class="total">Total do dia</th>';
 
     // Linhas por dia
     const totals = {};
@@ -713,12 +982,12 @@
       const cells = REPORT_COLUMNS.map(t => {
         const v = (byDay[day].porTipo[t] || 0);
         totals[t] += v;
-        return `<td>${v}</td>`;
+        return `<td${v ? '' : ' class="zero"'}>${v}</td>`;
       }).join('');
       const rowTotal = byDay[day].totalDia;
       grandTotal += rowTotal;
-      const marca = byDay[day].compartilhado ? ' <span title="Inclui visitante(s) contado(s) em mais de uma atividade no mesmo dia">*</span>' : '';
-      return `<tr><td>${fmtDate(day)}</td>${cells}<td>${rowTotal}${marca}</td></tr>`;
+      const marca = byDay[day].compartilhado ? ' <span class="star" title="Inclui visitante(s) contado(s) em mais de uma atividade no mesmo dia">*</span>' : '';
+      return `<tr><td>${fmtDate(day)}</td>${cells}<td class="total">${rowTotal}${marca}</td></tr>`;
     }).join('');
 
     const temCompartilhado = days.some(d => byDay[d].compartilhado);
@@ -727,12 +996,11 @@
     // Rodapé com totais do mês
     $('reportFoot').innerHTML = `<tr><td>Total do mês</td>${
       REPORT_COLUMNS.map(t => `<td>${totals[t]}</td>`).join('')
-    }<td>${grandTotal}</td></tr>`;
+    }<td class="total">${grandTotal}</td></tr>`;
 
     $('reportEmpty').style.display = days.length ? 'none' : 'block';
     document.querySelector('#reportCard table').style.display = days.length ? '' : 'none';
 
-    $('stampDate').textContent = monthLabel(month) || fmtDate(todayStr());
   }
 
   async function addEntry(){
@@ -852,7 +1120,11 @@
     $('btnClearFilter').textContent = showAll ? 'Ver só última semana' : 'Ver todos';
   }
 
+  initTipoChips();
   initDefaults();
   loadSheetUrl().then(loadEntries);
 })();
 </script>
+
+</body>
+</html>
