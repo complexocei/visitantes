@@ -582,7 +582,7 @@
       <h2 id="h-gerenciar">Gerenciar registros</h2>
       <div class="toolbar">
         <div class="field">
-          <label for="f-filtro-data">Mostrar registros de (padrão: últimos 7 dias)</label>
+          <label for="f-filtro-data">Mostrar registros de (padrão: hoje)</label>
           <input type="date" id="f-filtro-data">
         </div>
         <div class="field">
@@ -659,7 +659,7 @@
   let sheetUrl = '';
   let filterDate = '';
   let filterTipo = '';
-  let showAll = false; // false = lista padrão mostra só últimos 7 dias; true = "Ver todos"
+  let showAll = false; // false = lista padrão mostra só os registros de hoje; true = "Ver todos"
 
   // Quais campos aparecem no formulário para cada tipo de visita.
   const FIELDS_BY_TIPO = {
@@ -711,9 +711,6 @@
     const mm = String(dt.getMonth()+1).padStart(2,'0');
     const dd = String(dt.getDate()).padStart(2,'0');
     return yy+'-'+mm+'-'+dd;
-  }
-  function daysAgoStr(days){
-    return addDays(todayStr(), -days);
   }
 
   function updateFormFields(){
@@ -843,13 +840,13 @@
   }
 
   function getFiltered(){
-    // Sem data específica escolhida e sem "ver todos" ativo: limita aos últimos 7 dias
+    // Sem data específica escolhida e sem "ver todos" ativo: mostra só os registros de hoje
     // para a lista não ficar pesada. Escolher uma data ou clicar "Ver todos" libera o filtro.
-    const limiteSemana = (!filterDate && !showAll) ? daysAgoStr(7) : null;
+    const soHoje = (!filterDate && !showAll) ? todayStr() : null;
     return entries.filter(e => {
       if(filterDate && e.data !== filterDate) return false;
       if(filterTipo && e.tipo !== filterTipo) return false;
-      if(limiteSemana && e.data < limiteSemana) return false;
+      if(soHoje && e.data !== soHoje) return false;
       return true;
     });
   }
@@ -861,9 +858,9 @@
     });
 
     const tbody = $('tbody');
-    const janelaSemana = (!filterDate && !showAll);
-    $('emptyMsg').textContent = (janelaSemana && entries.length)
-      ? 'Nenhum registro nos últimos 7 dias. Clique em "Ver todos" para consultar datas anteriores.'
+    const janelaHoje = (!filterDate && !showAll);
+    $('emptyMsg').textContent = (janelaHoje && entries.length)
+      ? 'Nenhum registro hoje ainda. Escolha uma data ou clique em "Ver todos" para consultar dias anteriores.'
       : 'Nenhum registro encontrado ainda. Use o formulário acima para começar.';
     $('emptyMsg').style.display = list.length ? 'none' : 'block';
     const cel = (label, val) => `<td data-label="${label}"${val ? '' : ' class="is-empty"'}>${val || '&mdash;'}</td>`;
@@ -884,7 +881,7 @@
       btn.addEventListener('click', () => removeEntry(btn.getAttribute('data-del')));
     });
 
-    let sufixo = janelaSemana ? ' — últimos 7 dias' : '';
+    let sufixo = janelaHoje ? ' — hoje' : '';
     const partesFiltro = [];
     if(filterDate) partesFiltro.push(fmtDate(filterDate));
     if(filterTipo) partesFiltro.push(filterTipo);
@@ -1125,7 +1122,7 @@
   });
 
   function updateClearFilterLabel(){
-    $('btnClearFilter').textContent = showAll ? 'Ver só última semana' : 'Ver todos';
+    $('btnClearFilter').textContent = showAll ? 'Ver só hoje' : 'Ver todos';
   }
 
   initTipoChips();
