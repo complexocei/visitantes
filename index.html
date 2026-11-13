@@ -472,10 +472,18 @@
     .hero h1{font-size:28px;}
     .hero-sub, .wave, .today{display:none;}
     .sheet{max-width:100%; margin:0; padding:0;}
-    .card{padding:18px; border:1px solid #999; border-radius:12px; box-shadow:none; break-inside:avoid;}
+    .card{padding:14px; border:1px solid #999; border-radius:12px; box-shadow:none;}
+    .report-title{font-size:20px; margin:0 0 12px;}
+
+    /* A rolagem horizontal é só para a tela: na folha a tabela inteira precisa caber. */
+    .table-wrap{overflow:visible;}
+    .report{width:100%; table-layout:auto; font-size:12.5px;}
+    .report thead th, .report tbody td, .report tfoot td{padding:7px 4px;}
+    .report thead th{white-space:normal; line-height:1.2; vertical-align:bottom;}
     .report tbody tr:nth-child(even){background:none;}
     .report td.zero{color:#777;}
-    tbody tr{break-inside:avoid;}
+    .report tfoot td:first-child, .report tfoot td:last-child{border-radius:0;}
+    tbody tr, tfoot tr{break-inside:avoid;}
   }
 </style>
 </head>
